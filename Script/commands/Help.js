@@ -2,13 +2,13 @@ const fs = require("fs-extra");
 const axios = require("axios");
 
 module.exports.config = {
-  name: "helpall",
-  version: "3.1.0",
+  name: "help",
+  version: "4.0.0",
   hasPermssion: 0,
   credits: "乛 MR ཐི༏ཋྀ JU𝆠፝֟W𝆠፝֟ELꜛཐི༏ཋྀ࿐",
-  description: "Categorized all command list with serial numbers",
+  description: "Categorized all command list with serial numbers + command info",
   commandCategory: "system",
-  usages: "[No args]",
+  usages: "[command name]",
   cooldowns: 5
 };
 
@@ -44,17 +44,14 @@ function toBoldNumber(num) {
   return num.toString().split('').map(d => b[d] || d).join('');
 }
 
-// ── 🎯 আপনার বটের জন্য কাস্টম ক্যাটাগরি ম্যাপিং ──
-// নিচে প্রতিটি ক্যাটাগরিতে আপনার কমান্ডের নাম হুবহু মিলিয়ে দিয়েছি
+// ── 🎯 কাস্টম ক্যাটাগরি ম্যাপিং ──
 const CATEGORY_MAP = {
-
   "⚙️ SYSTEM / CONFIG": [
     "help", "helpall", "menu", "prefix", "config", "console", "cache",
     "load", "install", "restart", "uptime", "cmd", "cmdsstore", "shortcut",
     "theme", "settings", "setupbot", "setprefix", "viewcode", "file", "uid",
-    "tid", "info", "activity", "status", "console", "shortcut"
+    "tid", "info", "activity", "status", "shortcut"
   ],
-
   "🔒 ADMIN ONLY": [
     "0admin", "admin", "adminupdate", "addadmin", "addbotadmin", "admeallbox",
     "antijoin", "antikick", "antilink", "antiout", "antigali", "autoban",
@@ -66,100 +63,152 @@ const CATEGORY_MAP = {
     "setpp", "setprofile", "setriya", "spamban", "suspend", "unsend",
     "welcome", "warn", "warnings", "delmsg", "kick", "kickall", "adduser",
     "approve", "groupimage", "groupname", "boxname", "boxinfo", "newbox",
-    "leave", "addadmin", "0admin", "admin", "setadabox", "settings"
+    "leave", "addadmin", "setadabox", "settings"
   ],
-
   "🎵 MEDIA / AUDIO": [
     "mp3", "music", "sing", "sing2", "song", "say", "text_voice",
     "textvoice", "voice", "audio", "tts", "autovoice", "text"
   ],
-
   "🎬 VIDEO / DOWNLOAD": [
     "video", "video1", "video2", "video3", "video4", "youtube", "autodl",
     "4k", "download", "fbcover", "fbkick", "fblink", "getlink", "tiktok"
   ],
-
   "🖼️ IMAGE / PHOTO": [
     "album", "art", "avatar", "avt", "pic", "girl", "girl pp", "girl2",
     "boy pp", "wallpaper", "imgu", "imgur", "imgurall", "anime", "animegirl",
-    "animegirl", "anem i", "megi", "gif", "sticker", "photo"
+    "megi", "gif", "sticker", "photo"
   ],
-
   "🎮 GAME / FUN": [
     "quiz", "game", "casino", "truth", "dare", "slot", "joke", "fun",
     "hug", "hug2", "kiss", "slap", "slap2", "love", "love1", "crush",
     "crush1", "married", "married1", "pair", "pair1", "pair2", "pairing",
-    "roast", "sad", "attitude", "gali", "ch or", "chor", "toilet", "bo om",
-    "boom", "fire", "war", "baby", "bro", "broken", "cute", "hot", "hot2",
-    "hot3", "18+", "xxx", "sex", "women", "girl pp", "boy pp"
+    "roast", "sad", "attitude", "gali", "chor", "toilet", "boom", "fire",
+    "war", "baby", "bro", "broken", "cute", "hot", "hot2", "hot3",
+    "18+", "xxx", "sex", "women"
   ],
-
   "💰 ECONOMY / BDT": [
     "bkashf", "give", "daily", "balance", "bank", "work", "pay", "coin",
     "cash", "money", "bts", "cpt", "ar", "x"
   ],
-
   "🕌 ISLAMIC": [
     "allah", "islam", "islamick", "sura", "salam", "shayri", "ramadan",
     "nastik", "wish", "shotic", "shoti"
   ],
-
   "📢 GROUP / SOCIAL": [
     "tag", "mention", "group", "groupimage", "groupname", "boxname", "boxinfo",
     "inbox", "in", "join", "adduser", "addadmin", "welcome", "notice",
     "noti1", "noti2", "notification", "post", "react", "autoreact",
     "autoreplybot", "autoseen", "send sms", "sms", "stak", "stalk",
-    "profile", "userinfo", "ffinfo", "numinfo", "tid", "uid", "linkadd a",
+    "profile", "userinfo", "ffinfo", "numinfo", "tid", "uid",
     "linkcaption", "linknickname", "linkpp", "linkstori", "linksupport",
     "shortcut", "supportgc"
   ],
-
   "🎭 TEXT / FONT / STYLE": [
-    "font", "bigtext", "caption", "text", "textpro", "text off", "edit",
+    "font", "bigtext", "caption", "text", "textpro", "edit",
     "emojimix", "mix", "prompt", "gptgen", "gemini", "google", "search",
     "translate", "en", "ar", "bn", "hi", "russian", "russia", "japan",
     "copy", "random", "top", "listfriend", "bestfriend", "birthday",
-    "bday", "bio", "couple", "coupledp", "fork", "f p", "fp"
+    "bday", "bio", "couple", "coupledp", "fork", "fp"
   ],
-
   "🛠️ UTILITY / TOOLS": [
     "age", "alert", "allbox", "alluser", "gethu", "github", "goru",
     "hack", "jail", "nokia", "pet", "poli", "profile", "sigma", "t",
-    "x", "zuck", "nastik", "judge", "acp", "acp", "bc", "ck", "c k"
+    "x", "zuck", "judge", "acp", "bc", "ck"
   ]
 };
 
-// ── 🔍 ক্যাটাগরি ফাইন্ডার (fallback সহ) ──
+// ── 🔍 ক্যাটাগরি ফাইন্ডার ──
 function getDisplayCategory(cmdName, cmdConfig) {
   const lower = cmdName.toLowerCase().trim();
-
-  // ১. কাস্টম ম্যাপে খুঁজি (exact match আগে)
   for (const [cat, list] of Object.entries(CATEGORY_MAP)) {
     if (list.some(c => c.toLowerCase() === lower)) return cat;
   }
-  // ২. partial match
   for (const [cat, list] of Object.entries(CATEGORY_MAP)) {
     if (list.some(c => lower.includes(c.toLowerCase()) || c.toLowerCase().includes(lower))) {
       return cat;
     }
   }
-
-  // ৩. Admin Only auto detect
   if (cmdConfig?.hasPermssion === 2 || cmdConfig?.hasPermssion === 3) {
     return "🔒 ADMIN ONLY";
   }
-
-  // ৪. commandCategory fallback
   const cat = cmdConfig?.commandCategory;
   if (cat && typeof cat === 'string' && cat.trim() !== '') {
     return "📦 " + cat.toUpperCase();
   }
-
   return "📦 OTHERS";
 }
 
-// ── 🔥 Main Function ──
-async function sendHelp(api, event) {
+// ── 📋 নির্দিষ্ট কমান্ডের তথ্য দেখানোর ফাংশন ──
+async function sendCommandInfo(api, event, commandName) {
+  const { threadID, messageID } = event;
+  const { commands } = global.client;
+
+  const cmd = commands.get(commandName.toLowerCase());
+  if (!cmd) {
+    return api.sendMessage(
+      `╔══════════════════════╗\n║  ❌ 𝐍𝐎𝐓 𝐅𝐎𝐔𝐍𝐃 ❌  ║\n╚══════════════════════╝\n\n` +
+      `「 ${toBold(commandName)} 」 নামে কোনো কমান্ড নেই!\n\n` +
+      `📌 সব কমান্ড দেখতে লিখুন: ${toBold("help")}`,
+      threadID, messageID
+    );
+  }
+
+  const cfg = cmd.config || {};
+
+  // Owner / Bot name config থেকে নেওয়ার চেষ্টা
+  let botName = "⎯꯭𓆩꯭𝆺𝅥😻⃞𝐑⃞𝐈⃞𝐘⃞𝐀⃞༢࿐";
+  let ownerName = "乛 M𝆠፝֟R ཐི༏ཋྀ JU𝆠፝֟W𝆠፝֟ELꜛཐི༏ཋྀ࿐";
+  try {
+    const configPath = __dirname + "/../../config.json";
+    if (fs.existsSync(configPath)) {
+      const cfgJson = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      if (cfgJson.BOTNAME) botName = cfgJson.BOTNAME;
+      if (cfgJson.OWNER_NAME) ownerName = cfgJson.OWNER_NAME;
+    }
+  } catch (e) {}
+
+  // Prefix
+  let prefix = global.config?.PREFIX || "!";
+  try {
+    const configPath = __dirname + "/../../config.json";
+    if (fs.existsSync(configPath)) {
+      const cfgJson = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      if (cfgJson.PREFIX) prefix = cfgJson.PREFIX;
+    }
+  } catch (e) {}
+
+  // Permission readable
+  const permMap = { 0: "👤 𝐀𝐥𝐥 𝐔𝐬𝐞𝐫", 1: "🛡️ 𝐆𝐫𝐨𝐮𝐩 𝐀𝐝𝐦𝐢𝐧", 2: "👑 𝐁𝐨𝐭 𝐀𝐝𝐦𝐢𝐧", 3: "🔱 𝐎𝐰𝐧𝐞𝐫" };
+  const perm = permMap[cfg.hasPermssion] || "👤 𝐀𝐥𝐥 𝐔𝐬𝐞𝐫";
+
+  const infoText = `╔══════════════════════╗
+║   ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐈𝐍𝐅𝐎 ✨   ║
+╠══════════════════════╣
+║
+║ 🔖 𝐍𝐚𝐦𝐞 ⇢ ${toBold(cfg.name || commandName)}
+║ 📄 𝐔𝐬𝐚𝐠𝐞 ⇢ ${toBold(cfg.usages || "No usage")}
+║ 📜 𝐃𝐞𝐬𝐜 ⇢ ${toBold(cfg.description || "No description")}
+║ 🔑 𝐏𝐞𝐫𝐦 ⇢ ${perm}
+║ 👨‍💻 𝐂𝐫𝐞𝐝𝐢𝐭 ⇢ ${cfg.credits || "Unknown"}
+║ 📂 𝐂𝐚𝐭𝐞𝐠𝐨𝐫𝐲 ⇢ ${toBold(cfg.commandCategory || "system")}
+║ ⏳ 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧 ⇢ ${toBoldNumber(cfg.cooldowns || 0)}s
+║
+╠══════════════════════╣
+║ ⚙ 𝐏𝐫𝐞𝐟𝐢𝐱 ⇢ ${prefix}
+║ 🤖 𝐁𝐨𝐭 ⇢ ${botName}
+║ 👑 𝐎𝐰𝐧𝐞𝐫 ⇢ ${ownerName}
+╚══════════════════════╝`;
+
+  return api.sendMessage(infoText, threadID, messageID);
+}
+
+// ── 🔥 Main Help Function ──
+async function sendHelp(api, event, args) {
+  // যদি নির্দিষ্ট কমান্ডের নাম দেওয়া হয়
+  if (args && args.length > 0) {
+    return sendCommandInfo(api, event, args[0].trim());
+  }
+
   const { commands } = global.client;
   const { threadID, messageID } = event;
 
@@ -173,7 +222,6 @@ async function sendHelp(api, event) {
     categories[cat].push(cmdName);
   }
 
-  // ক্যাটাগরি prioritized order
   const order = [
     "⚙️ SYSTEM / CONFIG",
     "🔒 ADMIN ONLY",
@@ -218,13 +266,14 @@ async function sendHelp(api, event) {
 
   const finalText = `
 ╔══════════════════════╗
-║   ✿ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 ✿
+║    ✿ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 ✿
 ╚══════════════════════╝
 
 ${commandList}
 
 ╔══════════════════════╗
 ║  ✦ 𝐓𝐨𝐭𝐚𝐥: ${toBoldNumber(totalCount)} 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬 ✦
+║  📌 𝐈𝐧𝐟𝐨: help <cmd>
 ╚══════════════════════╝
 `;
 
@@ -261,13 +310,13 @@ ${commandList}
   }
 }
 
-module.exports.run = async function ({ api, event }) {
-  return sendHelp(api, event);
+module.exports.run = async function ({ api, event, args }) {
+  return sendHelp(api, event, args);
 };
 
 module.exports.handleEvent = async function ({ api, event }) {
   const msg = (event.body || "").toLowerCase().trim();
-  if (msg === "helpall" || msg === "allcmd") {
-    return sendHelp(api, event);
+  if (msg === "help" || msg === "allcmd") {
+    return sendHelp(api, event, []);
   }
 };
