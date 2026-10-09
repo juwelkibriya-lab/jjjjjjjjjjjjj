@@ -3,7 +3,7 @@ const request = require("request");
 const path = require("path");
 
 module.exports.config = {
- name: "help",
+ name: "help2",
  version: "4.0.0",
  hasPermssion: 0,
  credits: "乛 M𝆠፝֟R ཐི༏ཋྀ JU𝆠፝֟W𝆠፝֟ELꜛཐི༏ཋྀ࿐",
