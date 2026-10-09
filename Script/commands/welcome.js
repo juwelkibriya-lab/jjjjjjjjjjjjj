@@ -2,150 +2,212 @@ const axios = require('axios');
 
 module.exports.config = {
     name: "welcome",
-    version: "1.3.2",
+    version: "1.6.0",
     hasPermssion: 0,
     credits: "乛 M𝆠፝֟R ཐི༏ཋྀ JU𝆠፝֟W𝆠፝֟ELꜛཐི༏ཋྀ࿐",
-    description: "Welcome system with auto trigger and profile photo",
+    description: "Welcome system with auto trigger, profile photo & auto-delete",
     commandCategory: "group",
     usages: "/welcome [reply/mention/uid]",
     cooldowns: 5
 };
 
+// ============================================================
+//  ✅ Name Fetch
+// ============================================================
 async function getName(api, uid) {
     try {
-        const userInfo = await api.getUserInfo(uid);
-        return userInfo[uid].name || "Facebook User";
-    } catch {
+        const info = await api.getUserInfo(uid);
+        if (info && info[uid] && info[uid].name) return info[uid].name;
+
+        const info2 = await api.getUserInfo([uid]);
+        if (info2 && info2[uid] && info2[uid].name) return info2[uid].name;
+
+        return "Facebook User";
+    } catch (e) {
         return "Facebook User";
     }
 }
 
-// টেক্সট ক্লিন করার ফাংশন (ইমোজি ও স্পেশাল ক্যারেক্টার বাদ দেয়)
+// ============================================================
+//  ✅ Text Clean
+// ============================================================
 function cleanText(text) {
     if (!text) return "";
     return text
-        .replace(/[\u{1F600}-\u{1F6FF}]/gu, '')
-        .replace(/[\u{2600}-\u{26FF}]/gu, '')
-        .replace(/[\u{2700}-\u{27BF}]/gu, '')
-        .replace(/[^\w\s\u0980-\u09FF]/g, '')
+        .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+        .replace(/[\u{2600}-\u{27BF}]/gu, '')
+        .replace(/[\u{FE00}-\u{FE0F}]/gu, '')
         .replace(/\s+/g, ' ')
         .trim();
 }
 
-// ট্রিগার ওয়ার্ড চেক করার ফাংশন
+// ============================================================
+//  ✅ Flexible Trigger Word Detector
+// ============================================================
 function isTriggerWord(text) {
     if (!text) return false;
-    const cleanMsg = cleanText(text);
-    const lowerText = cleanMsg.toLowerCase();
 
-    const banglaTriggers = [
-        "আমি নতুন", "নতুন আছি", "ওয়েলকাম করো", "ওয়েলকাম করো",
-        "কে ওয়েলকাম করবে", "কে ওয়েলকাম করবে", "ওয়েলকাম দাও", "ওয়েলকাম দাও",
-        "স্বাগতম জানাও", "নতুন সদস্য", "আমি জয়েন করেছি", "আমি যোগ দিয়েছি",
-        "নতুন", "জয়েন", "যোগ দিয়েছি"
+    let t = cleanText(text).toLowerCase();
+    t = t.replace(/[''`´]/g, '');
+    t = t.replace(/[,.!?;:"()\[\]{}<>]/g, ' ');
+    t = t.replace(/\s+/g, ' ').trim();
+
+    if (!t) return false;
+
+    const has = (...words) => words.some(w => t.includes(w));
+
+    // Pattern 1: আমি + নতুন / গ্রুপ + নতুন
+    const hasAmi = has("আমি", "আমিও");
+    const hasGroup = has("গ্রুপ", "গ্ৰুপ", "গুরুপ", "group", "গ্রুপে", "গ্ৰুপে");
+    const hasNotun = has("নতুন", "new");
+
+    if (hasAmi && hasNotun) return true;
+    if (hasGroup && hasNotun) return true;
+    if (hasAmi && hasGroup && hasNotun) return true;
+
+    // Pattern 2: Phrases
+    const phrases = [
+        "গ্রুপে নতুন", "গ্ৰুপে নতুন", "গ্রুপে নতুন এসেছি", "গ্রুপে নতুন হলাম",
+        "এই গ্রুপে নতুন", "এই গ্ৰুপে নতুন", "এই গ্রুপে আমি নতুন",
+        "নতুন এসেছি", "নতুন হলাম", "নতুন যোগ", "নতুন জয়েন",
+        "জয়েন করেছি", "জয়েন করলাম", "যোগ দিয়েছি", "যোগ দিলাম",
+        "যোগ হলাম", "মেম্বার হলাম", "সদস্য হলাম", "গ্রুপে যোগ",
+        "গ্রুপে জয়েন", "গ্রুপে এলাম", "গ্রুপে আসলাম",
+        "আমি নতুন", "আমিও নতুন", "আমি নতুন এসেছি",
+        "আমাকে ওয়েলকাম", "আমাকে স্বাগতম", "আমাকে welcome",
+        "ওয়েলকাম করো", "ওয়েলকাম দাও", "স্বাগতম জানাও",
+        "ওয়েলকাম করবেন", "স্বাগতম জানাবেন",
+        "কে ওয়েলকাম করবে", "কে স্বাগতম জানাবে",
+        "নতুন সদস্য", "নতুন মেম্বার",
+        "গ্রুপে আসলাম", "গ্রুপে ঢুকলাম", "গ্রুপে প্রবেশ",
+        "গ্রুপে প্রথম", "গ্রুপে নতুন মুখ",
+        "ভাই আমি নতুন", "আপু আমি নতুন", "স্যার আমি নতুন",
+        "i am new", "im new", "iam new", "im a new",
+        "i am new here", "im new here",
+        "i am new in this group", "im new in this group",
+        "i am new to this group", "im new to this group",
+        "i just joined", "i have joined", "i joined",
+        "just joined", "just joined the group",
+        "new member", "new here", "new in group",
+        "new to this group", "new to group",
+        "welcome me", "say welcome", "please welcome",
+        "who will welcome", "who will welcome me",
+        "add me", "i am added",
+        "hi im new", "hello im new", "hey im new",
+        "im the new guy", "im the new one",
+        "im newbie", "im a newbie", "newbie here",
+        "freshly joined", "recently joined"
     ];
 
-    const englishTriggers = [
-        "i am new", "i'm new", "im new", "new member",
-        "welcome me", "say welcome", "who will welcome",
-        "just joined", "joined", "new here", "new", "join"
-    ];
+    for (let p of phrases) {
+        if (t.includes(p)) return true;
+    }
 
-    for (let word of banglaTriggers) {
-        if (lowerText.includes(word)) return true;
+    // Pattern 3: Solo word
+    const words = t.split(/[\s।,]+/).filter(Boolean);
+    const soloBan = ["নতুন", "জয়েন", "যোগ", "স্বাগতম", "ওয়েলকাম"];
+    const soloEng = ["new", "join", "joined", "welcome"];
+
+    for (let w of words) {
+        if (soloBan.includes(w)) return true;
+        if (soloEng.includes(w)) return true;
     }
-    for (let word of englishTriggers) {
-        if (lowerText.includes(word)) return true;
-    }
+
     return false;
 }
 
+// ============================================================
+//  🚀 MAIN RUN
+// ============================================================
 module.exports.run = async ({ api, event, args, Users }) => {
     const threadID = event.threadID;
     const threadInfo = await api.getThreadInfo(threadID).catch(() => null);
     const groupName = threadInfo?.threadName || "Unknown Group";
 
-    let targetID = null;
-    let isCommand = false;
+    const botID = api.getCurrentUserID();
+    const senderID = event.senderID;
+    const body = event.body || "";
 
-    // ===== ১. রিপ্লে =====
+    // 🚫 Bot নিজের মেসেজে trigger হবে না
+    if (senderID === botID) return;
+
+    let targetID = null;
+    let deleteAfterMs = null; // ✅ কত ms পরে ডিলিট হবে
+
+    // ===== ১. রিপ্লে (Comment/Reply) → 3 min পরে ডিলিট =====
     if (event.messageReply) {
         targetID = event.messageReply.senderID;
-        isCommand = true;
+        deleteAfterMs = 3 * 60 * 1000; // ✅ ৩ মিনিট
     }
-    
-    // ===== ২. মেনশন =====
+    // ===== ২. মেনশন → সাথে সাথে ডিলিট =====
     else if (event.mentions && Object.keys(event.mentions).length > 0) {
-        const body = event.body || "";
         const cleanBody = cleanText(body).toLowerCase();
+        const welcomeWords = ["ওয়েলকাম", "স্বাগতম", "welcome", "new", "নতুন", "জয়েন", "যোগ"];
+        const hasWelcomeWord = welcomeWords.some(w => cleanBody.includes(w));
 
-        const welcomeWords = ["ওয়েলকাম", "ওয়েলকাম", "স্বাগতম", "welcome", "new", "নতুন", "জয়েন", "যোগ"];
-        let hasWelcomeWord = false;
-        for (let word of welcomeWords) {
-            if (cleanBody.includes(word)) {
-                hasWelcomeWord = true;
-                break;
-            }
-        }
-
-        if (hasWelcomeWord || args[0] || event.body.startsWith("/welcome") || event.body.startsWith("!welcome")) {
+        if (hasWelcomeWord || args[0] || body.startsWith("/welcome") || body.startsWith("!welcome")) {
             targetID = Object.keys(event.mentions)[0];
-            isCommand = true;
+            deleteAfterMs = 1000; // ✅ ১ সেকেন্ড পরে ডিলিট
         }
     }
-
-    // ===== ৩. UID =====
-    else if (args[0]) {
+    // ===== ৩. UID → সাথে সাথে ডিলিট =====
+    else if (args[0] && /^\d{5,}$/.test(args[0])) {
         targetID = args[0];
-        isCommand = true;
+        deleteAfterMs = 1000;
     }
-
-    // ===== ৪. অটো ট্রিগার =====
+    // ===== ৪. অটো ট্রিগার (ভিডিও/টেক্সট) → সাথে সাথে ডিলিট =====
     else {
-        const body = event.body || "";
         if (isTriggerWord(body)) {
-            targetID = event.senderID;
+            targetID = senderID;
+            deleteAfterMs = 1000; // ✅ ১ সেকেন্ড পরে ডিলিট
         }
     }
 
-    // যদি টার্গেট আইডি না পাওয়া যায় তাহলে রিটার্ন
-    if (!targetID) {
-        return;
-    }
+    if (!targetID) return;
 
-    // ===== ইউজারের নাম পাওয়া =====
+    // ===== টার্গেট ইউজারের নাম =====
     const username = await getName(api, targetID);
-    
+
     // ===== অ্যাডমিন লিস্ট =====
     const adminIDs = threadInfo?.adminIDs?.map(i => i.id) || [];
-    
-    // ===== মেনশন তৈরি =====
-    let mentions = [];
-    let adminText = "";
-
-    // অ্যাডমিনদের জন্য মেনশন
-    for (let id of adminIDs) {
-        const name = await getName(api, id);
-        adminText += `@${name}\n`;
-        mentions.push({
-            id: id,
-            tag: name
-        });
-    }
-
-    // বট অ্যাডমিন
     const botadmin = "61594400795920";
     const botadminName = await getName(api, botadmin);
-    mentions.push({
-        id: botadmin,
-        tag: botadminName
-    });
 
-    // টার্গেট ইউজার (যাকে ওয়েলকাম করা হচ্ছে)
-    mentions.push({
-        id: targetID,
-        tag: username
-    });
+    // ===== Mentions তৈরি =====
+    let mentions = [];
+    let adminText = "";
+    const seenTags = new Set();
+
+    for (let id of adminIDs) {
+        let name = await getName(api, id);
+        let tag = "@" + name;
+        let counter = 1;
+        while (seenTags.has(tag)) {
+            tag = "@" + name + " " + counter;
+            counter++;
+        }
+        seenTags.add(tag);
+        adminText += `${tag}\n`;
+        mentions.push({ id: id, tag: tag });
+    }
+
+    let botTag = "@" + botadminName;
+    let bc = 1;
+    while (seenTags.has(botTag)) {
+        botTag = "@" + botadminName + " " + bc;
+        bc++;
+    }
+    seenTags.add(botTag);
+    mentions.push({ id: botadmin, tag: botTag });
+
+    let userTag = "@" + username;
+    let uc = 1;
+    while (seenTags.has(userTag)) {
+        userTag = "@" + username + " " + uc;
+        uc++;
+    }
+    seenTags.add(userTag);
+    mentions.push({ id: targetID, tag: userTag });
 
     // ===== প্রোফাইল ফটো =====
     let profilePicStream = null;
@@ -172,7 +234,7 @@ module.exports.run = async ({ api, event, args, Users }) => {
  ${groupName}
 
 ┗━━━━━━━━━━━━━━━┛
-গু্ঁপে্ঁ আ্ঁমা্ঁদে্ঁর্ঁ সা্ঁথে্ঁ যু্ঁক্ত্ঁ হ্ঁও্ঁয়া্ঁর্ঁ
+গু্ঁপে্ঁ আ্ঁমা্ঁদে্ঁর্ঁ সা্ঁথে্ঁ যু্ঁক্ত্ঁ হ্ঁও্ঁয়া্ঁর্ঁ
 
  জ্ঁন্য্ঁ তো্ঁমা্ঁকে্ঁ অ্ঁস্ঁংখ্য্ঁ ধ্ঁন্য্ঁবা্ঁদ্ঁ ┏━━━━━━━━━━━━━━━┓
 ༊তা্ঁর সা্ঁথে্ঁ ༆ এ্ঁর্ঁ প্ঁক্ষ্ঁ
@@ -181,7 +243,7 @@ module.exports.run = async ({ api, event, args, Users }) => {
 গো্ঁলা্ঁপে্ঁর্ঁ শু্ঁভে্ঁচ্ছা্ঁ ও্ঁ
 
  অ্ঁভি্ঁন্ঁদ্ঁন্ঁ༊᭄আ্ঁমা্ঁদে্ঁর্ঁ সা্ঁথে্ঁই্ঁ 
-সা্ঁথে্ঁ যু্ঁক্ত্ঁ হ্ঁয়ে্ঁছে্ঁন্ঁ & আ্ঁমা্ঁদে্ঁর্ঁ
+সা্ঁথে্ঁ যু্ঁক্ত্ঁ হ্ঁয়ে্ঁছে্ঁন্ঁ & আ্ঁমা্ঁদে্ঁর্ঁ
 
  সা্ঁথে্ঁই্ঁ থা্ঁক্ঁবা্ঁ🫶🫰💝┗━━━━━━━━━━━━━━━┛
 
@@ -201,7 +263,7 @@ module.exports.run = async ({ api, event, args, Users }) => {
 ┏━━━━━━━━━━━━━━━━━━┓
  👤 𝐁🅞𝐓 𝐀𝐃🅜𝐈𝐍
 
- 👉 ${botadminName}
+ 👉 ${botTag}
  🔗 https://www.facebook.com/profile.php?id=${botadmin}
 ━━━━━━━━━━━━━━━━━━━━
 👥𝐆𝐎🅡𝐔𝐏 𝐀𝐃🅜𝐈𝐍 
@@ -213,31 +275,51 @@ module.exports.run = async ({ api, event, args, Users }) => {
  
  ──⃟🐱𝗪𝗘𝗟𝗖𝗢𝗠𝗘🫵🫶🫂🌷
 
- ━〲😽ꤪ ${username}
+ ━〲😽ꤪ ${userTag}
 
 ┗━━━━━━━━━━━━━━━┛
 `;
 
-    // ===== মেসেজ পাঠানো =====
+    // ===== পাঠানো + Auto Delete =====
     try {
+        let sentMsg;
         if (profilePicStream) {
-            await api.sendMessage({
+            sentMsg = await api.sendMessage({
                 body: msg,
                 mentions: mentions,
                 attachment: profilePicStream
             }, threadID);
         } else {
-            await api.sendMessage({
-                body: msg,
-                mentions: mentions
-            }, threadID);
+            sentMsg = await api.sendMessage({ body: msg, mentions: mentions }, threadID);
         }
+
+        // ✅ Auto Delete Logic
+        const messageID = sentMsg?.messageID || sentMsg;
+        if (messageID && deleteAfterMs) {
+            setTimeout(async () => {
+                try {
+                    await api.unsendMessage(messageID);
+                    console.log(`🗑️ Deleted welcome message after ${deleteAfterMs / 1000}s`);
+                } catch (err) {
+                    console.error("❌ Delete failed:", err.message);
+                }
+            }, deleteAfterMs);
+        }
+
     } catch (error) {
         console.error("Error sending message:", error);
-        // ব্যর্থ হলে শুধু টেক্সট মেসেজ পাঠানো
-        await api.sendMessage({
-            body: msg,
-            mentions: mentions
-        }, threadID);
+        try {
+            const fallbackMsg = await api.sendMessage({ body: msg, mentions: mentions }, threadID);
+            const messageID = fallbackMsg?.messageID || fallbackMsg;
+            if (messageID && deleteAfterMs) {
+                setTimeout(async () => {
+                    try {
+                        await api.unsendMessage(messageID);
+                    } catch (e) {}
+                }, deleteAfterMs);
+            }
+        } catch (e) {
+            console.error("Fallback failed:", e);
+        }
     }
 };
