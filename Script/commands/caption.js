@@ -2,13 +2,13 @@ const moment = require("moment-timezone");
 
 module.exports.config = {
   name: "caption",
-  version: "3.0.0",
+  version: "7.0.0",
   hasPermssion: 0,
   credits: "乛 M𝆠፝֟R ཐི༏ཋྀ JU𝆠፝֟W𝆠፝֟ELꜛཐི༏ཋྀ࿐",
-  description: "random caption with NEXT button",
+  description: "random caption with separate NEXT button",
   commandCategory: "caption",
   usages: "caption",
-  cooldowns: 5
+  cooldowns: 3
 };
 
 // ============ ৪৯টা ক্যাপশন ============
@@ -29,19 +29,14 @@ const tl = [
 ✧ ˖°☁️🌷།國།⋆ ˚｡⋆୨୧˚
 
 ─]🩵🪽
-✧       ╭───🎀🪄⤹🍥⤸📰🌷────⎞
-  ╰──⃞⃟✎𐏓꯭꯭𝙼⃞⃟𝚁⪩𝙹⃞⃟𝚄𝚆𝙴⃞⃟𝙻⪨⤸⃞🩷ꤪ🪽
-
-Ꮗ─⃞⤹𝐘𝐨𝐮 𝐚𝐫𝐞 𝐚𝐥𝐰𝐚𝐲𝐬 𝐁𝐞𝐚𝐮𝐭𝐢𝐟𝐮𝐥 𝐢𝐬 𝐭𝐡𝐞 𝐞𝐲𝐞𝐬 𝐨𝐟 𝐓𝐡𝐞 𝐫𝐢𝐠𝐡𝐭 𝐩𝐞𝐫𝐬𝐨𝐧⋟ꜛᰔᩚ࿐
-♡︎ ⁽স𝆠፝֟ঠি𝆠፝֟ক₎ ⁽মা𝆠፝֟নু𝆠፝֟ষে𝆠፝֟র₎ ⁽চো𝆠፝֟খে₎ ⁽আ𝆠፝֟প𝆠፝֟নি₎
-⁽স𝆠፝֟ব₎ ⁽স𝆠፝֟ম𝆠፝֟য়₎ ⁽সু𝆠፝֟ন্দ𝆠፝֟র₎:♡︎⤸⃞ꜛ ⪼🩷🪽`,
+╭───🎀🪄⤹🍥⤸📰🌷────⎞
+╰──⃞⃟✎𐏓꯭꯭𝙼⃞⃟𝚁⪩𝙹⃞⃟𝚄𝚆𝙴⃞⃟𝙻⪨⤸⃞🩷ꤪ🪽`,
 
   // ৩
   `𝆠꯭፝֟ ♡゙𝆠፝֟𝆠꯭፝֟〲𝆠፝֟༏ :❫🩷🪽
 
 ╰─➛🏻🌷ছে𝆠፝֟ড়ে𝆠፝֟ যা𝆠፝֟ও𝆠፝֟য়া𝆠፝֟ শ𝆠፝֟হ𝆠፝֟রে𝆠፝֟ 
 ধ𝆠፝֟রে𝆠፝֟ রা𝆠፝֟খা𝆠፝֟র𝆠፝֟ এ𝆠፝֟ক𝆠፝֟টা𝆠፝֟ মা𝆠፝֟নু𝆠፝֟ষ হো𝆠፝֟ক
-হো𝆠፝֟ক না𝆠፝֟ সে𝆠፝֟ যে𝆠፝֟ম𝆠፝֟ন তে𝆠፝֟ম𝆠፝֟ন
 গ𝆠፝֟ড়ে নে𝆠፝֟বো ম𝆠፝֟নে𝆠፝֟র ম𝆠፝֟ত𝆠፝֟ন⊱ 💋♡゙🪽🌷`,
 
   // ৪
@@ -231,10 +226,7 @@ ___♡!༏ »:)🌷🩷🤍🪽
 
 ٭ ⣿ ˔🎻⛇ ๑
 
-╰──𑁍ࠬ⪼▣⎯➤⃚➺⤹⃪︪আ⃪︪জ⃪︪'কা⃪︪ল⃪︪ ভা⃪︪লো⃪︪'বা⃪︪সা⃪︪ ভি⃪︪হ্মা⃪︪র⃪︪ ম⃪︪ত⃪︪ হ⃪︪য⃪়︪ গে⃪︪ছে⃪︪ এ⃪︪ক জ⃪︪ন ভি⃪︪হ্মা⃪︪র⃪︪ ম⃪︪ত⃪︪ চা⃪︪য⃪়︪ অ⃪︪ন্য⃪︪জ⃪︪ন ই⃪︪চ্ছে⃪︪ হ⃪︪লে⃪︪ দে⃪︪য⃪়︪ না⃪︪ হ⃪︪লে দু⃪︪রে স⃪︪রি⃪︪য়ে⃪︪ দে⃪︪য় ⤸⎯😅🪽⤸
-‎
-‎      ╭───🎀🪄⤹🍥⤸📰🌷────⎞
-			 ╰──⃞⃟✎𐏓꯭꯭𝙼⃞⃟𝚁⪩𝙹⃞⃟𝚄𝚆𝙴⃞⃟𝙻⪨⤸⃞🩷ꤪ🪽`,
+╰──𑁍ࠬ⪼▣⎯➤⃚➺⤹⃪︪আ⃪︪জ⃪︪'কা⃪︪ল⃪︪ ভা⃪︪লো⃪︪'বা⃪︪সা⃪︪ ভি⃪︪হ্মা⃪︪র⃪︪ ম⃪︪ত⃪︪ হ⃪︪য⃪়︪ গে⃪︪ছে⃪︪ এ⃪︪ক জ⃪︪ন ভি⃪︪হ্মা⃪︪র⃪︪ ম⃪︪ত⃪︪ চা⃪︪য⃪়︪ অ⃪︪ন্য⃪︪জ⃪︪ন ই⃪︪চ্ছে⃪︪ হ⃪︪লে⃪︪ দে⃪︪য⃪়︪ না⃪︪ হ⃪︪লে দু⃪︪রে স⃪︪রি⃪︪য়ে⃪︪ দে⃪︪য় ⤸⎯😅🪽⤸`,
 
   // ৩৩
   `╭──⤹🩷🪻📰⤸🌷 
@@ -273,7 +265,7 @@ ___♡!༏ »:)🌷🩷🤍🪽
 ╰──⃞⃟✎𐏓꯭꯭𝙼⃞⃟𝚁⪩𝙹⃞⃟𝚄𝚆𝙴⃞⃟𝙻⪨⤸⃞🩷ꤪ🪽`,
 
   // ৪০
-  `_⎞─Ꮗ𝗧𝗎𝗺𝗶 𝗥𝗲𝗸𝗵𝗲 𝗗𝗲𝗼 𝗧𝗼𝗺𝗮𝗿 𝗞𝗼𝗿𝗲 𝗔𝗺𝗶 𝗧𝗵𝗮𝗸𝘁𝗲 𝗖𝗮𝗶 𝗧𝗼𝗺𝗮𝗿 𝗛𝗼⃟𝗶𝘆𝗲–❯<"𝟯🥂🖤🌷`,
+  `_⎞─Ꮗ𝗧𝗎𝗺𝗶 𝗥𝗲𝗸𝗵𝗲 𝗗𝗲𝗼 𝗧𝗼𝗺𝗮𝗿 𝗞𝗼𝗿𝗲 𝗔𝗺𝗶 𝗧𝗵𝗮𝗸𝘁𝗲 𝗖𝗮𝗶 𝗧𝗼𝗺𝗮𝗿 𝗛𝗼⃟𝗶𝗵𝗲–❯<"𝟯🥂🖤🌷`,
 
   // ৪১
   `⎯⎯Ꮗভালোব༏স༏ ম༏নে ব༏রব༏র নতুন ক༏উকে নয় একই   ম༏নুষকে ব༏রব༏র ভালোব༏স༏⊰–❯🩷🎀🌷`,
@@ -311,140 +303,61 @@ ___♡!༏ »:)🌷🩷🤍🪽
 ];
 // ============ ক্যাপশন শেষ ============
 
-// সেশন ট্র্যাক (কোন ইউজার কোন ক্যাপশনে আছে)
-const userSession = {};
+// প্রতি ইউজারের শেষ ক্যাপশন (একই ক্যাপশন পরপর আসবে না)
+const lastUsed = {};
 
 /**
- * ক্যাপশন মেসেজ পাঠানোর ফাংশন
+ * র‍্যান্ডম ক্যাপশন বের করার ফাংশন
  */
-function sendCaption(api, threadID, messageID, userID, index) {
-  if (index >= tl.length) index = 0;
+function getRandomCaption(userID) {
+  let idx, tries = 0;
+  do {
+    idx = Math.floor(Math.random() * tl.length);
+    tries++;
+  } while (idx === lastUsed[userID] && tries < 10);
 
-  const caption = tl[index];
-  userSession[userID] = {
-    threadID: threadID,
-    currentIndex: index,
-    timestamp: Date.now()
-  };
-
-  // ২ সেকেন্ড পর বাটন সহ মেসেজ
-  setTimeout(() => {
-    const buttonMessage = {
-      body: caption,
-      button: [
-        {
-          type: "postback",
-          title: "🎲 NEXT CAPTION",
-          payload: `NEXT_CAPTION_${userID}`
-        },
-        {
-          type: "postback",
-          title: "❤️ LOVE",
-          payload: `LOVE_CAPTION_${userID}`
-        },
-        {
-          type: "postback",
-          title: "💔 SAD",
-          payload: `SAD_CAPTION_${userID}`
-        },
-        {
-          type: "postback",
-          title: "🎲 RANDOM",
-          payload: `RANDOM_CAPTION_${userID}`
-        }
-      ]
-    };
-
-    api.sendMessage(buttonMessage, threadID, (err) => {
-      if (err) {
-        // বাটন সাপোর্ট না থাকলে সাধারণ মেসেজ
-        api.sendMessage(caption, threadID);
-      }
-    }, messageID);
-  }, 2000);
+  lastUsed[userID] = idx;
+  return tl[idx];
 }
 
 /**
- * কমান্ড রান (caption দিলে প্রথম ক্যাপশন)
+ * ক্যাপশন আলাদা + ২ সেকেন্ড পর বাটন আলাদা পাঠানোর ফাংশন
  */
+function sendCaptionAndButton(api, threadID, messageID, userID) {
+  const caption = getRandomCaption(userID);
+
+  // ===== ধাপ ১: শুধু ক্যাপশন পাঠাও =====
+  api.sendMessage(caption, threadID, (err) => {
+    if (err) return;
+
+    // ===== ধাপ ২: ২ সেকেন্ড পর শুধু বাটন পাঠাও =====
+    setTimeout(() => {
+      api.sendMessage(
+        {
+          body: "👇 পরের ক্যাপশনের জন্য বাটনে চাপ দিন",
+          button: {
+            content: "🎲 NEXT CAPTION",
+            command: "caption"
+          }
+        },
+        threadID
+      );
+    }, 2000);
+  }, messageID);
+}
+
+// ============ কমান্ড রান ============
 module.exports.run = async function ({ api, event }) {
   const { threadID, messageID, senderID } = event;
-  sendCaption(api, threadID, messageID, senderID, 0);
+  sendCaptionAndButton(api, threadID, messageID, senderID);
 };
 
-/**
- * বাটন ক্লিক + কমান্ড হ্যান্ডেল
- */
+// ============ কমান্ড কে ট্রিগার করলো সেটা ধরার জন্য ============
 module.exports.handleEvent = async function ({ api, event }) {
   const { threadID, messageID, senderID, body } = event;
 
-  // কমান্ড টেক্সট
-  if (body && body.trim().toLowerCase() === module.exports.config.name) {
-    return module.exports.run({ api, event });
-  }
-
-  // "next" টেক্সট রিপ্লাই (বাটন কাজ না করলে)
+  // যদি কেউ "next" লেখে (বাটন কাজ না করলে ব্যাকআপ)
   if (body && body.trim().toLowerCase() === "next") {
-    const session = userSession[senderID];
-    if (session) {
-      return sendCaption(api, threadID, messageID, senderID, session.currentIndex + 1);
-    } else {
-      return api.sendMessage("❌ আগে `caption` লিখুন!", threadID, messageID);
-    }
-  }
-
-  // Postback হ্যান্ডেল
-  if (event.type === "postback") {
-    const payload = event.postback?.payload;
-    if (!payload) return;
-
-    // NEXT CAPTION
-    if (payload.startsWith("NEXT_CAPTION_")) {
-      const userID = payload.replace("NEXT_CAPTION_", "");
-      const session = userSession[userID];
-
-      if (!session) {
-        return api.sendMessage(
-          "❌ সেশন এক্সপায়ার! আবার `caption` লিখুন।",
-          threadID
-        );
-      }
-
-      return sendCaption(
-        api, threadID, messageID, userID,
-        session.currentIndex + 1
-      );
-    }
-
-    // RANDOM CAPTION
-    if (payload.startsWith("RANDOM_CAPTION_")) {
-      const userID = payload.replace("RANDOM_CAPTION_", "");
-      const randIndex = Math.floor(Math.random() * tl.length);
-      return sendCaption(api, threadID, messageID, userID, randIndex);
-    }
-
-    // LOVE ক্যাটাগরি
-    if (payload.startsWith("LOVE_CAPTION_")) {
-      const userID = payload.replace("LOVE_CAPTION_", "");
-      const loveList = tl.filter(c =>
-        c.includes("ভালোবাসা") || c.includes("💖") ||
-        c.includes("❤️") || c.includes("ভা𝆠፝֟লো")
-      );
-      const pick = loveList[Math.floor(Math.random() * loveList.length)];
-      const idx = tl.indexOf(pick);
-      return sendCaption(api, threadID, messageID, userID, idx);
-    }
-
-    // SAD ক্যাটাগরি
-    if (payload.startsWith("SAD_CAPTION_")) {
-      const userID = payload.replace("SAD_CAPTION_", "");
-      const sadList = tl.filter(c =>
-        c.includes("কষ্ট") || c.includes("💔") || c.includes("😢") ||
-        c.includes("❤️‍🩹")
-      );
-      const pick = sadList[Math.floor(Math.random() * sadList.length)];
-      const idx = tl.indexOf(pick);
-      return sendCaption(api, threadID, messageID, userID, idx);
-    }
+    return sendCaptionAndButton(api, threadID, messageID, senderID);
   }
 };
