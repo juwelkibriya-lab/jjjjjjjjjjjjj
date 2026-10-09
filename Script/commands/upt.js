@@ -6,250 +6,68 @@ const { execSync } = require('child_process');
 
 module.exports.config = {
   name: "upt",
-  version: "2.1.0",
+  version: "1.0.0",
   hasPermssion: 0,
   credits: "MR JUWEL",
-  description: "Cyberpunk real-time system monitoring",
+  description: "System real-time monitoring with image (No Prefix)",
   commandCategory: "system",
   usages: "",
   cooldowns: 5
 };
 
-// =====================================================
-// CACHE
-// =====================================================
+// cache folder
 module.exports.onLoad = () => {
-  const cache = path.join(__dirname, "cache");
-  if (!fs.existsSync(cache)) {
-    fs.mkdirSync(cache, { recursive: true });
-  }
+  const cache = __dirname + "/cache/";
+  if (!fs.existsSync(cache)) fs.mkdirSync(cache, { recursive: true });
 };
 
-// =====================================================
-// BYTE FORMAT
-// =====================================================
-const f = (bytes) => {
-  if (!bytes || bytes <= 0) return "0 B";
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return (bytes / Math.pow(1024, i)).toFixed(2) + " " + sizes[i];
+// helper (bytes to size)
+const f = b => {
+  const s = ['B','KB','MB','GB','TB'];
+  const i = Math.floor(Math.log(b) / Math.log(1024));
+  return (b / Math.pow(1024, i)).toFixed(2) + ' ' + s[i];
 };
 
-// =====================================================
-// CPU USAGE
-// =====================================================
-let previousCPU = null;
+// CPU usage
+let prev = null;
 const getCPU = () => {
-  let idle = 0;
-  let total = 0;
-  for (const cpu of os.cpus()) {
-    for (const type in cpu.times) {
-      total += cpu.times[type];
-    }
-    idle += cpu.times.idle;
+  let idle = 0, total = 0;
+  for (const c of os.cpus()) {
+    for (const t in c.times) total += c.times[t];
+    idle += c.times.idle;
   }
-  const current = { idle, total };
-  if (!previousCPU) {
-    previousCPU = current;
-    return Math.round((1 - idle / total) * 100);
-  }
-  const idleDiff = current.idle - previousCPU.idle;
-  const totalDiff = current.total - previousCPU.total;
-  previousCPU = current;
-  if (!totalDiff) return 0;
-  return Math.max(0, Math.min(100, Math.round(100 - (100 * idleDiff) / totalDiff)));
+  const cur = { idle, total };
+  if (!prev) { prev = cur; return 0; }
+  const di = cur.idle - prev.idle;
+  const dt = cur.total - prev.total;
+  prev = cur;
+  return dt ? Math.round(100 - (100 * di / dt)) : 0;
 };
 
-// =====================================================
-// DISK USAGE (cross-platform)
-// =====================================================
+// Disk usage
 const getDisk = () => {
   try {
-    let output;
-    if (process.platform === "win32") {
-      output = execSync("wmic logicaldisk get size,freespace,caption").toString();
-      const lines = output.split("\n").filter(l => l.trim() && !l.includes("Caption"));
-      const line = lines[0].trim().split(/\s+/);
-      const free = parseInt(line[0]);
-      const total = parseInt(line[1]);
-      if (!total) return 0;
-      return Math.min(100, Math.round(((total - free) / total) * 100));
-    } else {
-      output = execSync("df -k /").toString();
-      const line = output.split("\n").filter(x => x.trim())[1];
-      const data = line.split(/\s+/);
-      const total = parseInt(data[1]) * 1024;
-      const used = parseInt(data[2]) * 1024;
-      if (!total) return 0;
-      return Math.min(100, Math.round((used / total) * 100));
-    }
-  } catch (e) {
-    return 0;
+    const d = execSync('df -k /').toString().split('\n')[1].split(/\s+/);
+    const used = parseInt(d[2]) * 1024;
+    const total = parseInt(d[1]) * 1024;
+    return Math.min(100, Math.round((used / total) * 100));
+  } catch {
+    return 80;
   }
 };
 
-// =====================================================
-// ROUNDED RECTANGLE
-// =====================================================
-const roundedRect = (ctx, x, y, w, h, r) => {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
+// rounded rect
+const rr = (c,x,y,w,h,r) => {
+  c.beginPath();
+  c.moveTo(x+r,y);
+  c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r);
+  c.arcTo(x,y,x+w,y,r);
+  c.closePath();
 };
 
-// =====================================================
-// NEON LINE
-// =====================================================
-const neonLine = (ctx, x1, y1, x2, y2, color, width = 3) => {
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 15;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.stroke();
-  ctx.restore();
-};
-
-// =====================================================
-// CORNER FRAME
-// =====================================================
-const cornerFrame = (ctx, x, y, w, h, color) => {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 6;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 18;
-  ctx.beginPath();
-  ctx.moveTo(x + 45, y); ctx.lineTo(x + 5, y); ctx.lineTo(x, y + 5); ctx.lineTo(x, y + 45);
-  ctx.moveTo(x + w - 45, y); ctx.lineTo(x + w - 5, y); ctx.lineTo(x + w, y + 5); ctx.lineTo(x + w, y + 45);
-  ctx.moveTo(x + w, y + h - 45); ctx.lineTo(x + w, y + h - 5); ctx.lineTo(x + w - 5, y + h); ctx.lineTo(x + w - 45, y + h);
-  ctx.moveTo(x + 45, y + h); ctx.lineTo(x + 5, y + h); ctx.lineTo(x, y + h - 5); ctx.lineTo(x, y + h - 45);
-  ctx.stroke();
-  ctx.restore();
-};
-
-// =====================================================
-// SERVER BACKGROUND
-// =====================================================
-const drawServerBackground = (ctx, width, height) => {
-  const bg = ctx.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, "#020617");
-  bg.addColorStop(0.5, "#06152b");
-  bg.addColorStop(1, "#020617");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, width, height);
-
-  ctx.save();
-  ctx.strokeStyle = "rgba(0, 180, 255, 0.08)";
-  ctx.lineWidth = 1;
-  for (let x = 0; x < width; x += 45) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-  }
-  for (let y = 0; y < height; y += 45) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
-  }
-  ctx.restore();
-
-  for (let i = 0; i < 7; i++) {
-    const x = 35 + i * 155;
-    const y = 250 + (i % 2) * 20;
-    ctx.fillStyle = "rgba(2, 10, 25, 0.65)";
-    ctx.strokeStyle = "rgba(0, 140, 255, 0.18)";
-    ctx.lineWidth = 2;
-    ctx.fillRect(x, y, 115, 260);
-    ctx.strokeRect(x, y, 115, 260);
-
-    for (let j = 0; j < 6; j++) {
-      const ledX = x + 15 + j * 15;
-      ctx.beginPath();
-      ctx.arc(ledX, y + 25, 3, 0, Math.PI * 2);
-      ctx.fillStyle = j % 2 === 0 ? "#00ff88" : "#00bfff";
-      ctx.shadowColor = ctx.fillStyle;
-      ctx.shadowBlur = 10;
-      ctx.fill();
-    }
-
-    for (let j = 0; j < 8; j++) {
-      ctx.fillStyle = j % 2 === 0 ? "rgba(0,255,150,0.15)" : "rgba(0,140,255,0.15)";
-      ctx.fillRect(x + 12, y + 55 + j * 23, 90, 8);
-    }
-  }
-
-  const glow = ctx.createRadialGradient(width / 2, 350, 20, width / 2, 350, 600);
-  glow.addColorStop(0, "rgba(0,180,255,0.12)");
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, height);
-};
-
-// =====================================================
-// PROGRESS RING
-// =====================================================
-const drawRing = (ctx, x, y, percent, color, label) => {
-  const radius = 92;
-  const thickness = 20;
-
-  ctx.save();
-  ctx.fillStyle = "rgba(2, 10, 25, 0.88)";
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 18;
-  roundedRect(ctx, x - 145, y - 145, 290, 290, 25);
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.lineWidth = thickness;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(x, y, radius, -Math.PI / 2, (percent / 100) * Math.PI * 2 - Math.PI / 2);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = thickness;
-  ctx.lineCap = "round";
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 18;
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
-  ctx.font = "bold 58px Arial";
-  ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(percent + "%", x, y);
-
-  ctx.font = "bold 30px Arial";
-  ctx.fillStyle = color;
-  ctx.fillText(label, x, y + 120);
-};
-
-// =====================================================
-// INFO ROW
-// =====================================================
-const infoRow = (ctx, label, value, y, color = "#00eaff") => {
-  ctx.textAlign = "left";
-  ctx.font = "bold 27px Arial";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(label, 95, y);
-  ctx.font = "bold 27px Arial";
-  ctx.fillStyle = color;
-  ctx.fillText(value, 320, y);
-};
-
-// =====================================================
-// NO PREFIX HANDLER
-// =====================================================
+// ================= NOPREFIX HANDLER =================
 module.exports.handleEvent = async function ({ api, event }) {
   if (!event.body) return;
   const msg = event.body.toLowerCase().trim();
@@ -258,129 +76,104 @@ module.exports.handleEvent = async function ({ api, event }) {
   }
 };
 
-// =====================================================
-// MAIN
-// =====================================================
+// ================= MAIN RUN =================
 module.exports.run = async function ({ api, event }) {
-  let file;
   try {
-    const startTime = Date.now();
+    const start = Date.now();
 
     const cpu = getCPU();
     const totalRam = os.totalmem();
-    const freeRam = os.freemem();
-    const usedRam = totalRam - freeRam;
+    const usedRam = totalRam - os.freemem();
     const ram = Math.min(100, Math.round((usedRam / totalRam) * 100));
     const disk = getDisk();
 
-    const seconds = process.uptime();
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    const uptime = `${days}d ${hours}h ${minutes}m ${secs}s`;
+    const sec = process.uptime();
+    const d = Math.floor(sec / 86400);
+    const h = Math.floor(sec % 86400 / 3600);
+    const m = Math.floor(sec % 3600 / 60);
+    const s = Math.floor(sec % 60);
+    const uptime = d ? `${d}d ${h}h ${m}m ${s}s` : `${h}h ${m}m ${s}s`;
 
-    const ping = Date.now() - startTime;
+    const ping = Date.now() - start;
 
-    const WIDTH = 1080;
-    const HEIGHT = 720;
-    const canvas = createCanvas(WIDTH, HEIGHT);
-    const ctx = canvas.getContext("2d");
+    // canvas
+    const cv = createCanvas(1080, 720);
+    const c = cv.getContext('2d');
 
-    drawServerBackground(ctx, WIDTH, HEIGHT);
+    c.fillStyle = '#0b0b22';
+    c.fillRect(0, 0, 1080, 720);
 
-    cornerFrame(ctx, 20, 20, 1040, 680, "#00ff88");
-    cornerFrame(ctx, 32, 32, 1016, 656, "#00bfff");
+    c.fillStyle = 'rgba(15,15,40,0.95)';
+    c.strokeStyle = '#3399ff';
+    c.lineWidth = 6;
+    rr(c, 30, 30, 1020, 660, 60);
+    c.fill();
+    c.stroke();
 
-    ctx.textAlign = "center";
-    ctx.shadowColor = "#00ff88";
-    ctx.shadowBlur = 25;
-    ctx.font = "bold 70px Arial";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText("SYSTEM STATUS", 540, 105);
+    c.font = 'bold 80px Arial';
+    c.fillStyle = '#fff';
+    c.textAlign = 'center';
+    c.fillText('SYSTEM STATUS', 540, 145);
 
-    ctx.shadowBlur = 0;
-    ctx.font = "bold 28px Arial";
-    ctx.fillStyle = "#00eaff";
-    ctx.fillText("REAL-TIME SERVER MONITORING", 540, 145);
+    c.font = '36px Arial';
+    c.fillStyle = '#60a5fa';
+    c.fillText('Real-time Server Monitoring', 540, 195);
 
-    neonLine(ctx, 100, 165, 390, 165, "#00ff88", 4);
-    neonLine(ctx, 690, 165, 980, 165, "#00bfff", 4);
+    const ring = (x, y, p, col, label) => {
+      const r = 118, t = 26;
 
-    drawRing(ctx, 240, 320, cpu, "#00ff88", "CPU");
-    drawRing(ctx, 540, 320, ram, "#ff267f", "RAM");
-    drawRing(ctx, 840, 320, disk, "#00bfff", "DISK");
+      c.beginPath();
+      c.arc(x, y, r, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(255,255,255,0.08)';
+      c.fill();
 
-    ctx.save();
-    ctx.fillStyle = "rgba(1, 8, 22, 0.94)";
-    ctx.strokeStyle = "#00bfff";
-    ctx.lineWidth = 3;
-    ctx.shadowColor = "#00bfff";
-    ctx.shadowBlur = 15;
-    roundedRect(ctx, 60, 485, 960, 175, 25);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
+      c.beginPath();
+      c.arc(x, y, r, -Math.PI/2, (p/100) * Math.PI*2 - Math.PI/2);
+      c.lineWidth = t;
+      c.strokeStyle = col;
+      c.lineCap = 'round';
+      c.stroke();
 
-    neonLine(ctx, 700, 505, 700, 640, "#00bfff", 2);
+      c.font = 'bold 62px Arial';
+      c.fillStyle = '#fff';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(p + '%', x, y);
 
-    infoRow(ctx, "UPTIME", uptime, 525, "#00ff88");
-    infoRow(ctx, "RAM", ram + "%", 560, "#ff267f");
-    infoRow(ctx, "DISK", disk + "%", 595, "#00bfff");
-    infoRow(ctx, "MEMORY", `${f(usedRam)} / ${f(totalRam)}`, 630, "#a855f7");
+      c.font = '30px Arial';
+      c.fillStyle = '#ccc';
+      c.fillText(label, x, y + 85);
+    };
 
-    let pingColor;
-    if (ping < 80) pingColor = "#00ff88";
-    else if (ping < 150) pingColor = "#ffaa00";
-    else pingColor = "#ff3366";
+    ring(240, 355, cpu, '#00ff88', 'CPU');
+    ring(540, 355, ram, '#ff3366', 'RAM');
+    ring(840, 355, disk, '#3399ff', 'DISK');
 
-    ctx.font = "bold 25px Arial";
-    ctx.textAlign = "center";
-    ctx.fillStyle = pingColor;
-    ctx.shadowColor = pingColor;
-    ctx.shadowBlur = 15;
-    ctx.fillText(`PING → ${ping}ms`, 860, 545);
+    const g = (txt, y, col='#00ffcc') => {
+      c.font = 'bold 38px Arial';
+      c.fillStyle = col;
+      c.textAlign = 'left';
+      c.fillText(txt, 100, y);
+    };
 
-    ctx.shadowBlur = 15;
-    ctx.strokeStyle = "#00eaff";
-    ctx.lineWidth = 4;
+    g(`Uptime  →  ${uptime}`, 520);
+    g(`RAM     →  ${ram}%   •   Disk  →  ${disk}%`, 570);
+    g(`Memory  →  ${f(usedRam)} / ${f(totalRam)}`, 620);
 
-    roundedRect(ctx, 785, 570, 150, 55, 10);
-    ctx.stroke();
-    roundedRect(ctx, 785, 630, 150, 20, 8);
-    ctx.stroke();
+    const pc = ping < 80 ? '#00ff88' : ping < 150 ? '#ffaa00' : '#ff3366';
+    g(`Ping    →  ${ping}ms`, 670, pc);
 
-    const lights = ["#00ff88", "#00bfff", "#ff267f"];
-    lights.forEach((color, index) => {
-      ctx.beginPath();
-      ctx.arc(810 + index * 25, 597, 5, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 12;
-      ctx.fill();
-    });
-
-    ctx.shadowBlur = 0;
-    ctx.font = "bold 25px Arial";
-    ctx.fillStyle = "#00ffcc";
-    ctx.fillText("● SERVER ONLINE", 860, 680);
-
-    file = path.join(__dirname, "cache", `upt_${Date.now()}.png`);
-    fs.writeFileSync(file, canvas.toBuffer("image/png"));
+    const file = path.join(__dirname, 'cache', 'upt.png');
+    fs.writeFileSync(file, cv.toBuffer('image/png'));
 
     api.sendMessage(
       { attachment: fs.createReadStream(file) },
       event.threadID,
-      () => {
-        try { if (fs.existsSync(file)) fs.unlinkSync(file); } catch (e) {}
-      },
+      () => fs.unlinkSync(file),
       event.messageID
     );
-  } catch (error) {
-    console.error("UPT ERROR:", error);
-    if (file && fs.existsSync(file)) {
-      try { fs.unlinkSync(file); } catch (e) {}
-    }
-    api.sendMessage("❌ UPT image generate error: " + error.message, event.threadID, event.messageID);
+
+  } catch (e) {
+    api.sendMessage("❌ UPT image generate error", event.threadID, event.messageID);
   }
 };
